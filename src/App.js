@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import './App.css';
 import firebase, { auth, provider } from './firebase.js';
 
+import MdCheckBox from 'react-icons/lib/md/check-box';
+import MdCheckBoxOutlineBlank from 'react-icons/lib/md/check-box-outline-blank';
+
 class App extends Component {
 
   productivityOptions = [
@@ -32,9 +35,11 @@ class App extends Component {
     this.state = {
       date: new Date(),
       user: null,
-      currrentFeel: '',
+      productivity: '',
+      curNext: '',
       currentCompleted: '',
-      currentNext: '',
+      completed: [],
+      next: [],
       items: []
     }
   }
@@ -83,7 +88,7 @@ class App extends Component {
                 <h1>Tell me about today</h1>
                 <p>{this.formatDate(this.state.date)}</p>
                 <form onSubmit={this.handleSubmit}>
-                  <p>Today was <select>
+                  <p>Today was <select name='productivity' value={this.state.productivity} onChange={this.handleChange}>
                     {this.productivityOptions.map((item, index) => {
                       return (
                         <option key={index} value={item.value}>{item.text}</option>
@@ -91,9 +96,23 @@ class App extends Component {
                     })}
                   </select></p>
                   <p>What did you complete today?</p>
-                  <textarea name="completed" onChange={this.handleChange} value={this.state.currentCompleted} ></textarea>
+                  {this.state.completed.map((item, index) => {
+                    return (
+                      <p><MdCheckBox /> {this.state.completed[index]}</p>
+
+                    )
+                  })}
+                  <p><MdCheckBox /><input type="text" name='currentCompleted' onChange={this.handleChange} value={this.state.currentCompleted} onKeyPress={this._handleKeyPress}></input></p>
+
+
                   <p>What's next on the agenda?</p>
-                  <textarea name="next" onChange={this.handleChange} value={this.state.currentNext} ></textarea>
+                  {this.state.next.map((item, index) => {
+                    return (
+                      <p><MdCheckBoxOutlineBlank /> {this.state.next[index]}</p>
+
+                    )
+                  })}
+                  <p><MdCheckBoxOutlineBlank /><input type="text" name='currentNext' onChange={this.handleChange} value={this.state.currentNext} onKeyPress={this._handleKeyPress}></input></p>
                   <button>Save Day</button>
                 </form>
               </section>
@@ -102,12 +121,11 @@ class App extends Component {
                   <ul>
                     {this.state.items.map((item) => {
                       return (
-                        <li key={item.id}>
-                          <h3>{item.title}</h3>
-                          <p>brought by: {item.user}
-                            {item.user === this.state.user.displayName || item.user === this.state.user.email ?
-                              <button onClick={() => this.removeItem(item.id)}>Remove Item</button> : null}
-                          </p>
+                        <li>
+                          <h3>{item.productivity}</h3>
+                          {item.completed.map(c => {
+                            <p>{c}</p>
+                          })}
                         </li>
                       )
                     })}
@@ -140,6 +158,52 @@ class App extends Component {
           user: null
         });
       });
+  }
+  handleChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  }
+  _handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.target.name === 'currentCompleted') {
+        this.setState({
+          completed: [...this.state.completed, e.target.value],
+          currentCompleted: ''
+        });
+      }
+      else if (e.target.name === 'currentNext') {
+        this.setState({
+          next: [...this.state.next, e.target.value],
+          currentNext: ''
+        });
+      }
+      console.log('Enter pressed: ', e.target);
+    }
+  }
+  handleSubmit = (e) => {
+    e.preventDefault();
+    if (this.state.currentCompleted !== '') {
+      this.state.completed = [...this.state.completed, this.state.currentCompleted];
+    }
+    if (this.state.currentNext !== '') {
+      this.state.next = [...this.state.next, this.state.curNext];
+    }
+    this.setState({
+      items: [...this.state.items, {
+        date: this.state.date,
+        productivity: this.state.productivity,
+        completed: this.state.completed,
+        next: this.state.next
+      }],
+      productivity: '',
+      currentCompleted: '',
+      completed: [],
+      currentNext: '',
+      next: []
+    }
+    )
   }
   formatDate(date) {
     return date.toLocaleDateString();
