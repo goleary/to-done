@@ -30,6 +30,7 @@ class App extends Component {
     }
 
   ];
+  itemsRef = null;
   constructor() {
     super();
     this.state = {
@@ -47,17 +48,25 @@ class App extends Component {
     auth.onAuthStateChanged((user) => {
       if (user) {
         this.setState({ user });
+        this.connectDB();
       }
     });
-    const itemsRef = firebase.database().ref('items');
-    itemsRef.on('value', (snapshot) => {
+
+  }
+
+  connectDB() {
+    var userId = firebase.auth().currentUser.uid;
+    this.itemsRef = firebase.database().ref('/users/' + userId + '/items');
+    this.itemsRef.on('value', (snapshot) => {
       let items = snapshot.val();
       let newState = [];
-      for (let item in items) {
+      for (let id in items) {
         newState.push({
-          id: item,
-          title: items[item].title,
-          user: items[item].user
+          id: id,
+          copmleted: items[id].completed,
+          next: items[id].next,
+          productivity: items[id].productivity,
+          date: items[id].date
         });
       }
       this.setState({
@@ -123,8 +132,8 @@ class App extends Component {
                       return (
                         <li>
                           <h3>{item.productivity}</h3>
-                          {item.completed.map(c => {
-                            <p>{c}</p>
+                          {item.completed && item.completed.map(c => {
+                            return (<p>{c}</p>)
                           })}
                         </li>
                       )
@@ -184,19 +193,22 @@ class App extends Component {
   }
   handleSubmit = (e) => {
     e.preventDefault();
+    let completed = this.state.completed,
+      next = this.state.next;
     if (this.state.currentCompleted !== '') {
-      this.state.completed = [...this.state.completed, this.state.currentCompleted];
+      completed = [...completed, this.state.currentCompleted];
     }
     if (this.state.currentNext !== '') {
-      this.state.next = [...this.state.next, this.state.curNext];
+      next = [...next, this.state.curNext];
     }
+    let item = {
+      date: this.state.date.toDateString(),
+      productivity: this.state.productivity,
+      completed: completed,
+      next: next
+    };
+    this.addItem(item);
     this.setState({
-      items: [...this.state.items, {
-        date: this.state.date,
-        productivity: this.state.productivity,
-        completed: this.state.completed,
-        next: this.state.next
-      }],
       productivity: '',
       currentCompleted: '',
       completed: [],
@@ -204,6 +216,9 @@ class App extends Component {
       next: []
     }
     )
+  }
+  addItem(item) {
+    this.itemsRef.push(item);
   }
   formatDate(date) {
     return date.toLocaleDateString();
