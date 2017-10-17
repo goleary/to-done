@@ -5,6 +5,8 @@ import firebase, { auth, provider } from './firebase.js';
 import MdCheckBox from 'react-icons/lib/md/check-box';
 import MdCheckBoxOutlineBlank from 'react-icons/lib/md/check-box-outline-blank';
 
+import Item from './components/Item';
+
 class App extends Component {
 
   productivityOptions = [
@@ -63,7 +65,7 @@ class App extends Component {
       for (let id in items) {
         newState.push({
           id: id,
-          copmleted: items[id].completed,
+          completed: items[id].completed,
           next: items[id].next,
           productivity: items[id].productivity,
           date: items[id].date
@@ -129,14 +131,7 @@ class App extends Component {
                 <div className="wrapper">
                   <ul>
                     {this.state.items.map((item) => {
-                      return (
-                        <li>
-                          <h3>{item.productivity}</h3>
-                          {item.completed && item.completed.map(c => {
-                            return (<p>{c}</p>)
-                          })}
-                        </li>
-                      )
+                      return (<Item item={item} deleteMe={(id)=>this.handleItemDelete(id)} />)
                     })}
                   </ul>
                 </div>
@@ -219,6 +214,10 @@ class App extends Component {
   }
   addItem(item) {
     this.itemsRef.push(item);
+  }
+  handleItemDelete(itemId){
+    let itemRef = this.itemsRef.child(itemId);
+    itemRef.remove();
   }
   formatDate(date) {
     return date.toLocaleDateString();
