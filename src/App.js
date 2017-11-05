@@ -6,6 +6,7 @@ import MdCheckBox from 'react-icons/lib/md/check-box';
 import MdCheckBoxOutlineBlank from 'react-icons/lib/md/check-box-outline-blank';
 
 import Item from './components/Item';
+import Login from './components/Login';
 
 class App extends Component {
 
@@ -85,7 +86,7 @@ class App extends Component {
             {this.state.user ?
               <button onClick={this.logout}>Logout {this.state.user.displayName || this.state.user.email}</button>
               :
-              <button onClick={this.login}>Log In</button>
+              <Login />
             }
           </div>
         </header>
@@ -145,15 +146,6 @@ class App extends Component {
         }
       </div>
     );
-  }
-  login = () => {
-    auth.signInWithPopup(provider)
-      .then((result) => {
-        const user = result.user;
-        this.setState({
-          user
-        });
-      });
   }
   logout = () => {
     auth.signOut()
