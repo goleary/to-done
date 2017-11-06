@@ -133,13 +133,9 @@ class App extends Component {
                   </form>
                 </section>
                 <section className='display-item'>
-                  <div className="wrapper">
-                    <ul>
                       {this.state.items.map((item) => {
                         return (<Item item={item} deleteMe={(id) => this.handleItemDelete(id)} />)
                       })}
-                    </ul>
-                  </div>
                 </section>
               </div>
             </div>
