@@ -5,6 +5,9 @@ import firebase, { auth, provider } from './firebase.js';
 import MdCheckBox from 'react-icons/lib/md/check-box';
 import MdCheckBoxOutlineBlank from 'react-icons/lib/md/check-box-outline-blank';
 
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import RaisedButton from 'material-ui/RaisedButton';
+
 import Item from './components/Item';
 
 class App extends Component {
@@ -78,72 +81,75 @@ class App extends Component {
   }
   render() {
     return (
-      <div className="App">
-        <header>
-          <div className="wrapper">
-            <h1>To Done!</h1>
-            {this.state.user ?
-              <button onClick={this.logout}>Logout {this.state.user.displayName || this.state.user.email}</button>
-              :
-              <button onClick={this.login}>Log In</button>
-            }
-          </div>
-        </header>
-        {this.state.user ?
-          <div>
-            <div className='user-profile'>
-              <img src={this.state.user.photoURL} />
+      <MuiThemeProvider>
+
+        <div className="App">
+          <header>
+            <div className="wrapper">
+              <h1>To Done!</h1>
+              {this.state.user ?
+                <RaisedButton onClick={this.logout} label={'Logout ' + this.state.user.displayName || this.state.user.email }> </RaisedButton>
+                :
+                <RaisedButton onClick={this.login} label="Login"></RaisedButton>
+              }
             </div>
-            <div className='container'>
-              <section className='add-item'>
-                <h1>Tell me about today</h1>
-                <p>{this.formatDate(this.state.date)}</p>
-                <form onSubmit={this.handleSubmit}>
-                  <p>Today was <select name='productivity' value={this.state.productivity} onChange={this.handleChange}>
-                    {this.productivityOptions.map((item, index) => {
+          </header>
+          {this.state.user ?
+            <div>
+              <div className='user-profile'>
+                <img src={this.state.user.photoURL} />
+              </div>
+              <div className='container'>
+                <section className='add-item'>
+                  <h1>Tell me about today</h1>
+                  <p>{this.formatDate(this.state.date)}</p>
+                  <form onSubmit={this.handleSubmit}>
+                    <p>Today was <select name='productivity' value={this.state.productivity} onChange={this.handleChange}>
+                      {this.productivityOptions.map((item, index) => {
+                        return (
+                          <option key={index} value={item.value}>{item.text}</option>
+                        )
+                      })}
+                    </select></p>
+                    <p>What did you complete today?</p>
+                    {this.state.completed.map((item, index) => {
                       return (
-                        <option key={index} value={item.value}>{item.text}</option>
+                        <p><MdCheckBox /> {this.state.completed[index]}</p>
+
                       )
                     })}
-                  </select></p>
-                  <p>What did you complete today?</p>
-                  {this.state.completed.map((item, index) => {
-                    return (
-                      <p><MdCheckBox /> {this.state.completed[index]}</p>
-
-                    )
-                  })}
-                  <p><MdCheckBox /><input type="text" name='currentCompleted' onChange={this.handleChange} value={this.state.currentCompleted} onKeyPress={this._handleKeyPress}></input></p>
+                    <p><MdCheckBox /><input type="text" name='currentCompleted' onChange={this.handleChange} value={this.state.currentCompleted} onKeyPress={this._handleKeyPress}></input></p>
 
 
-                  <p>What's next on the agenda?</p>
-                  {this.state.next.map((item, index) => {
-                    return (
-                      <p><MdCheckBoxOutlineBlank /> {this.state.next[index]}</p>
+                    <p>What's next on the agenda?</p>
+                    {this.state.next.map((item, index) => {
+                      return (
+                        <p><MdCheckBoxOutlineBlank /> {this.state.next[index]}</p>
 
-                    )
-                  })}
-                  <p><MdCheckBoxOutlineBlank /><input type="text" name='currentNext' onChange={this.handleChange} value={this.state.currentNext} onKeyPress={this._handleKeyPress}></input></p>
-                  <button>Save Day</button>
-                </form>
-              </section>
-              <section className='display-item'>
-                <div className="wrapper">
-                  <ul>
-                    {this.state.items.map((item) => {
-                      return (<Item item={item} deleteMe={(id)=>this.handleItemDelete(id)} />)
+                      )
                     })}
-                  </ul>
-                </div>
-              </section>
+                    <p><MdCheckBoxOutlineBlank /><input type="text" name='currentNext' onChange={this.handleChange} value={this.state.currentNext} onKeyPress={this._handleKeyPress}></input></p>
+                    <button>Save Day</button>
+                  </form>
+                </section>
+                <section className='display-item'>
+                  <div className="wrapper">
+                    <ul>
+                      {this.state.items.map((item) => {
+                        return (<Item item={item} deleteMe={(id) => this.handleItemDelete(id)} />)
+                      })}
+                    </ul>
+                  </div>
+                </section>
+              </div>
             </div>
-          </div>
-          :
-          <div className='wrapper'>
-            <p>You must be logged in to see your items.</p>
-          </div>
-        }
-      </div>
+            :
+            <div className='wrapper'>
+              <p>You must be logged in to see your items.</p>
+            </div>
+          }
+        </div>
+      </MuiThemeProvider>
     );
   }
   login = () => {
@@ -215,7 +221,7 @@ class App extends Component {
   addItem(item) {
     this.itemsRef.push(item);
   }
-  handleItemDelete(itemId){
+  handleItemDelete(itemId) {
     let itemRef = this.itemsRef.child(itemId);
     itemRef.remove();
   }
