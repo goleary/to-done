@@ -2,12 +2,15 @@ import React, { Component } from 'react';
 import './App.css';
 import firebase, { auth, provider } from './firebase.js';
 
+import _ from 'lodash';
+
 import MdCheckBox from 'react-icons/lib/md/check-box';
 import MdCheckBoxOutlineBlank from 'react-icons/lib/md/check-box-outline-blank';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import RaisedButton from 'material-ui/RaisedButton';
 
+import Incomplete from './components/Incomplete';
 import Item from './components/Item';
 
 class App extends Component {
@@ -88,7 +91,7 @@ class App extends Component {
             <div className="wrapper">
               <h1>To Done!</h1>
               {this.state.user ?
-                <RaisedButton onClick={this.logout} label={'Logout ' + this.state.user.displayName || this.state.user.email }> </RaisedButton>
+                <RaisedButton onClick={this.logout} label={'Logout ' + this.state.user.displayName || this.state.user.email}> </RaisedButton>
                 :
                 <RaisedButton onClick={this.login} label="Login"></RaisedButton>
               }
@@ -133,9 +136,10 @@ class App extends Component {
                   </form>
                 </section>
                 <section className='display-item'>
-                      {this.state.items.map((item) => {
-                        return (<Item item={item} deleteMe={(id) => this.handleItemDelete(id)} />)
-                      })}
+                  <Incomplete tasks={this.incompleteTasks} completeTask={(task) => this.addCompletedTask(task)} />
+                  {this.state.items.map((item) => {
+                    return (<Item item={item} deleteMe={(id) => this.handleItemDelete(id)} />)
+                  })}
                 </section>
               </div>
             </div>
@@ -174,19 +178,29 @@ class App extends Component {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (e.target.name === 'currentCompleted') {
+        this.addCompletedTask(e.target.value);
         this.setState({
-          completed: [...this.state.completed, e.target.value],
           currentCompleted: ''
         });
       }
       else if (e.target.name === 'currentNext') {
+        this.addIncompleteTask(e.target.value);
         this.setState({
-          next: [...this.state.next, e.target.value],
-          currentNext: ''
+          curNext: ''
         });
       }
       console.log('Enter pressed: ', e.target);
     }
+  }
+  addIncompleteTask(task) {
+    this.setState({
+      next: [...this.state.next, task]
+    });
+  }
+  addCompletedTask(task) {
+    this.setState({
+      completed: [...this.state.completed, task]
+    });
   }
   handleSubmit = (e) => {
     e.preventDefault();
@@ -223,6 +237,10 @@ class App extends Component {
   }
   formatDate(date) {
     return date.toLocaleDateString();
+  }
+
+  get incompleteTasks() {
+    return _.flatten(_.map(this.state.items, item => item.next));
   }
 }
 

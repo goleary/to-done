@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import {List, ListItem} from 'material-ui/List';
+import { List, ListItem } from 'material-ui/List';
+import CheckBox from 'material-ui/svg-icons/toggle/check-box';
+import CheckBoxOutline from 'material-ui/svg-icons/toggle/check-box-outline-blank';
 
 class Item extends Component {
   constructor() {
@@ -19,8 +21,13 @@ class Item extends Component {
           <FlatButton label="Action2" />
         </CardActions>
         <List>
-        {this.props.item.completed && this.props.item.completed.map(c => {
-            return (<ListItem primaryText={c}  />)
+          {this.props.item.completed && this.props.item.completed.map(c => {
+            return (<ListItem primaryText={c} leftIcon={<CheckBox />} />)
+          })}
+        </List>
+        <List>
+          {this.props.item.next && this.props.item.next.map(c => {
+            return (<ListItem primaryText={c} leftIcon={<CheckBoxOutline />} />)
           })}
         </List>
         <CardText expandable={true}>
