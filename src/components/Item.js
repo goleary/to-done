@@ -25,11 +25,6 @@ class Item extends Component {
             return (<ListItem primaryText={c} leftIcon={<CheckBox />} />)
           })}
         </List>
-        <List>
-          {this.props.item.next && this.props.item.next.map(c => {
-            return (<ListItem primaryText={c} leftIcon={<CheckBoxOutline />} />)
-          })}
-        </List>
         <CardText expandable={true}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
       Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.

@@ -45,7 +45,7 @@ class App extends Component {
       date: new Date(),
       user: null,
       productivity: '',
-      curNext: '',
+      currentNext: '',
       currentCompleted: '',
       completed: [],
       next: [],
@@ -77,6 +77,8 @@ class App extends Component {
           date: items[id].date
         });
       }
+      //sort most recent first
+      newState.reverse();
       this.setState({
         items: newState
       });
@@ -186,7 +188,7 @@ class App extends Component {
       else if (e.target.name === 'currentNext') {
         this.addIncompleteTask(e.target.value);
         this.setState({
-          curNext: ''
+          currentNext: ''
         });
       }
       console.log('Enter pressed: ', e.target);
@@ -240,7 +242,7 @@ class App extends Component {
   }
 
   get incompleteTasks() {
-    return _.flatten(_.map(this.state.items, item => item.next));
+    return _.map(_.flatten(_.map(this.state.items, item => item.next)), task => { return { name: task, completed: false } });
   }
 }
 
